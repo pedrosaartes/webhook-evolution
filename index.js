@@ -1,43 +1,61 @@
-const express = require("express");
-const axios = require("axios");
+const express = require("express")
+const axios = require("axios")
+const { GoogleGenerativeAI } = require("@google/generative-ai")
 
-const app = express();
-app.use(express.json());
+const app = express()
+app.use(express.json())
 
-// CONFIGURAÇÕES (adicione depois no Render como variáveis)
-const EVOLUTION_URL = process.env.EVOLUTION_URL;
-const API_KEY = process.env.EVOLUTION_API_KEY;
-const INSTANCE = process.env.INSTANCE_NAME;
+// 🔑 SUA CHAVE DO AI STUDIO
+const genAI = new GoogleGenerativeAI("AIzaSyDGLkbLFxE_7r3qPq9jB5Nmvc6el8itoQg")
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
+// 📱 DADOS DA EVOLUTION
+const EVOLUTION_URL = "https://evolution-api-tvfe.onrender.com/"
+const API_KEY = "205EF40FAC42-4C6A-BC6C-357874663A34"
+const INSTANCE = "bot1"
+
+// 🌐 ROTA PRINCIPAL
+app.get("/", (req, res) => {
+  res.send("Bot IA online 🤖")
+})
+
+// 📩 WEBHOOK DA EVOLUTION
 app.post("/webhook", async (req, res) => {
   try {
-    const msg = req.body.data?.message?.conversation;
-    const number = req.body.data?.key?.remoteJid?.replace("@s.whatsapp.net", "");
+    const message = req.body.data?.message?.conversation
+    const from = req.body.data?.key?.remoteJid
 
-    if (!msg) return res.sendStatus(200);
+    if (!message) return res.sendStatus(200)
 
-    console.log("Mensagem recebida:", msg);
+    console.log("Mensagem:", message)
 
-    const reply = "Olá! Recebi sua mensagem pelo webhook 🚀";
+    // 🤖 Pergunta para a IA
+    const result = await model.generateContent(message)
+    const resposta = result.response.text()
 
+    console.log("Resposta IA:", resposta)
+
+    // 📤 Enviar resposta via Evolution
     await axios.post(
       `${EVOLUTION_URL}/message/sendText/${INSTANCE}`,
       {
-        number,
-        text: reply
+        number: from,
+        text: resposta
       },
       {
-        headers: { apikey: API_KEY }
+        headers: {
+          apikey: API_KEY
+        }
       }
-    );
+    )
 
-    res.sendStatus(200);
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
+    res.sendStatus(200)
+
+  } catch (error) {
+    console.error(error)
+    res.sendStatus(500)
   }
-});
+})
 
-app.listen(3000, () => {
-  console.log("Webhook rodando");
-});
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => console.log("Bot rodando 🚀"))
