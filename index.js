@@ -10,7 +10,7 @@ const genAI = new GoogleGenerativeAI("AIzaSyDGLkbLFxE_7r3qPq9jB5Nmvc6el8itoQg")
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
 // 📱 DADOS DA EVOLUTION
-const EVOLUTION_URL = "https://evolution-api-tvfe.onrender.com/"
+const EVOLUTION_URL = "https://evolution-api-tvfe.onrender.com"
 const API_KEY = "205EF40FAC42-4C6A-BC6C-357874663A34"
 const INSTANCE = "bot1"
 
@@ -59,3 +59,4 @@ app.post("/webhook", async (req, res) => {
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => console.log("Bot rodando 🚀"))
+
