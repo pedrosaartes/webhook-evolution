@@ -40,4 +40,9 @@ app.post("/webhook", async (req, res) => {
 
 app.listen(3000, () => {
   console.log("Webhook rodando");
+
 });
+
+app.get("/", (req, res) => {
+  res.send("Servidor online 🚀")
+})
